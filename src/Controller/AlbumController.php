@@ -98,7 +98,7 @@ class AlbumController extends AbstractController
             $album->setYear($data['year']);
         }
         if (isset($data['idalbum'])) {
-            $album->setIdAlbum($data['year']);
+            $album->setIdAlbum($data['idalbum']);
         }
 
         
