@@ -11,7 +11,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class LoginController extends AbstractController
 {
-
     private $repository;
     private $entityManager;
 
@@ -26,15 +25,14 @@ class LoginController extends AbstractController
         return $this->json([
             'message' => 'Welcome to MikeLand',
             'path' => 'src/Controller/LoginController.php',
-            ]);
-        }
+        ]);
+    }
         
     // use Symfony\Component\HttpFoundation\Request;
     #[Route('/login', name: 'app_login_post', methods: ['POST', 'PUT'])]
     public function login(Request $request): JsonResponse
     {
-
-        $user = $this->repository->findOneBy(["email" => "mike.sylvestre@lyknowledge.io"]);
+        // $user = $this->repository->findOneBy(["email" => "mike.sylvestre@lyknowledge.io"]);
         return $this->json([
             'user' => json_encode($user),
             'data' => $request->getContent(),
