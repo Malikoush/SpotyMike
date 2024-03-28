@@ -14,7 +14,8 @@ class UserController extends AbstractController
     private $repository;
     private $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager){
+    public function __construct(EntityManagerInterface $entityManager)
+    {
         $this->entityManager = $entityManager;
         $this->repository = $entityManager->getRepository(User::class);
     }
@@ -29,7 +30,7 @@ class UserController extends AbstractController
                 'message' => 'No users found',
             ], JsonResponse::HTTP_NOT_FOUND);
         }
-        
+
         $serializedUsers = [];
         foreach ($users as $user) {
             $serializedUsers[] = [
@@ -68,7 +69,7 @@ class UserController extends AbstractController
     {
         parse_str($request->getContent(), $data);
 
-        if (!isset($data['name']) || !isset($data['email']) || !isset($data['encrypte'])){
+        if (!isset($data['name']) || !isset($data['email']) || !isset($data['encrypte'])) {
             return new JsonResponse([
                 'error' => 'Missing data',
                 'data' => $data
@@ -83,17 +84,18 @@ class UserController extends AbstractController
             ], JsonResponse::HTTP_CONFLICT);
         }
 
-        $this->lastUserId++;
+
 
         $user = new User();
-        $user->setIdUser($this->lastUserId);
+        $user->setIdUser($data['id_user']);
         $user->setName($data['name']);
         $user->setEmail($data['email']);
         $user->setEncrypte($data['encrypte']);
         if (isset($data['tel'])) {
             $user->setTel($data['tel']);
         }
-        $user->setCreateAt($data['create_at']);
+        $user->setCreateAt(new \DateTimeImmutable());
+        $user->setUpdateAt(new \DateTimeImmutable());
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
@@ -129,9 +131,7 @@ class UserController extends AbstractController
         if (isset($data['encrypte'])) {
             $user->setEncrypte($data['encrypte']);
         }
-        if (isset($data['update_at'])) {
-            $user->setUpdateAt($data['update_at']);
-        }
+        $user->setUpdateAt(new \DateTimeImmutable());
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
