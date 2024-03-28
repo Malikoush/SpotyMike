@@ -75,7 +75,13 @@ class UserController extends AbstractController
                 'data' => $data
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
-
+        $email = $data['email'];
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return new JsonResponse([
+                'error' => 'Invalid email address',
+                'email' => $email
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
         $existingUser = $this->repository->findOneByEmail($data['email']);
         if ($existingUser !== null) {
             return new JsonResponse([
