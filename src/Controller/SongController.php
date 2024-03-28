@@ -98,7 +98,7 @@ class SongController extends AbstractController
         if (!$album) {
             return new JsonResponse(['error' => 'Album not found'], JsonResponse::HTTP_BAD_REQUEST);
         }
-
+        $date = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
         $song = new Song();
         $song->setAlbum($album);
         $song->setTitle($data['title']);
@@ -106,7 +106,7 @@ class SongController extends AbstractController
         $song->setCover($data['cover']);
         $song->setIdSong($data['id_song']);
         $song->setVisibility($data['visibility']);
-        $song->setCreateAt(new \DateTimeImmutable());
+        $song->setCreateAt($date);
 
         $this->entityManager->persist($song);
         $this->entityManager->flush();

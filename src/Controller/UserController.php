@@ -85,7 +85,7 @@ class UserController extends AbstractController
         }
 
 
-
+        $date = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
         $user = new User();
         $user->setIdUser($data['id_user']);
         $user->setName($data['name']);
@@ -94,8 +94,8 @@ class UserController extends AbstractController
         if (isset($data['tel'])) {
             $user->setTel($data['tel']);
         }
-        $user->setCreateAt(new \DateTimeImmutable());
-        $user->setUpdateAt(new \DateTimeImmutable());
+        $user->setCreateAt($date);
+        $user->setUpdateAt($date);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
@@ -131,7 +131,8 @@ class UserController extends AbstractController
         if (isset($data['encrypte'])) {
             $user->setEncrypte($data['encrypte']);
         }
-        $user->setUpdateAt(new \DateTimeImmutable());
+        $date = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
+        $user->setUpdateAt($date);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
