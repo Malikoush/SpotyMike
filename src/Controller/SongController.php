@@ -46,7 +46,7 @@ class SongController extends AbstractController
                 'title' => $song->getTitle(),
                 'url' => $song->getUrl(),
                 'cover' => $song->getCover(),
-                'visibility' => $song->getVisibility()
+                'visibility' => $song->isVisibility()
             ];
         }
 
@@ -77,7 +77,7 @@ class SongController extends AbstractController
             'title' => $song->getTitle(),
             'url' => $song->getUrl(),
             'cover' => $song->getCover(),
-            'visibility' => $song->getVisibility()
+            'visibility' => $song->isVisibility()
         ]);
     }
 
