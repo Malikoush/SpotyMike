@@ -8,13 +8,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Entity\Album;
 
 class SongController extends AbstractController
 {
     private $repository;
     private $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager){
+    public function __construct(EntityManagerInterface $entityManager)
+    {
         $this->entityManager = $entityManager;
         $this->repository = $entityManager->getRepository(Song::class);
     }
@@ -29,7 +31,7 @@ class SongController extends AbstractController
                 'message' => 'No songs found',
             ], JsonResponse::HTTP_NOT_FOUND);
         }
-        
+
         $serializedSongs = [];
         foreach ($songs as $song) {
             $serializedSongs[] = [
@@ -84,7 +86,7 @@ class SongController extends AbstractController
     {
         parse_str($request->getContent(), $data);
 
-        if (!isset($data['title']) || !isset($data['url']) || !isset($data['cover']) || !isset($data['visibility']) || !isset($data['album_id']) || !isset($data['create_at'])){
+        if (!isset($data['title']) || !isset($data['url']) || !isset($data['cover']) || !isset($data['visibility']) || !isset($data['album_id']) || !isset($data['create_at'])) {
             return new JsonResponse([
                 'error' => 'Missing data',
                 'data' => $data
@@ -102,7 +104,9 @@ class SongController extends AbstractController
         $song->setTitle($data['title']);
         $song->setUrl($data['url']);
         $song->setCover($data['cover']);
+        $song->setIdSong($data['id_song']);
         $song->setVisibility($data['visibility']);
+        $song->setCreateAt(new \DateTimeImmutable());
 
         $this->entityManager->persist($song);
         $this->entityManager->flush();
@@ -125,7 +129,7 @@ class SongController extends AbstractController
             ]);
         }
         parse_str($request->getContent(), $data);
-       
+
         if (isset($data['title'])) {
             $song->setTitle($data['title']);
         }
