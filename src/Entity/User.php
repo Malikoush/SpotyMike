@@ -120,7 +120,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->encrypte;
     }
 
-    public function setEncrypte(string $encrypte): static
+    public function setPassword(string $encrypte): static
     {
         $this->encrypte = $encrypte;
 
