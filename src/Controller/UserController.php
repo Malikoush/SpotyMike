@@ -68,13 +68,16 @@ class UserController extends AbstractController
     public function postUser(Request $request): JsonResponse
     {
         parse_str($request->getContent(), $data);
-
+        //vérification attribut nécessaire
         if (!isset($data['name']) || !isset($data['email']) || !isset($data['encrypte'])) {
             return new JsonResponse([
                 'error' => 'Missing data',
                 'data' => $data
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
+
+
+
         $email = $data['email'];
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return new JsonResponse([
@@ -98,8 +101,16 @@ class UserController extends AbstractController
         $user->setEmail($data['email']);
         $user->setEncrypte($data['encrypte']);
         if (isset($data['tel'])) {
-            $user->setTel($data['tel']);
+            if (preg_match('/^0[1-9]([-. ]?[0-9]{2}){4}$/', $data['tel'])) {
+                $user->setTel($data['tel']);
+            } else {
+                return new JsonResponse([
+                    'error' => 'Invalid phone number',
+                    'phone' => $data['tel']
+                ], JsonResponse::HTTP_BAD_REQUEST);
+            }
         }
+
         $user->setCreateAt($date);
         $user->setUpdateAt($date);
 
@@ -124,6 +135,21 @@ class UserController extends AbstractController
             ]);
         }
         parse_str($request->getContent(), $data);
+
+        $email = $data['email'];
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return new JsonResponse([
+                'error' => 'Invalid email address',
+                'email' => $email
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
+        $existingUser = $this->repository->findOneByEmail($data['email']);
+        if ($existingUser !== null) {
+            return new JsonResponse([
+                'error' => 'Email already exists',
+                'email' => $data['email']
+            ], JsonResponse::HTTP_CONFLICT);
+        }
 
         if (isset($data['name'])) {
             $user->setName($data['name']);
