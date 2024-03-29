@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 class UserController extends AbstractController
@@ -65,7 +66,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/user', name: 'app_user_post', methods: 'POST')]
-    public function postUser(Request $request): JsonResponse
+    public function postUser(Request $request, UserPasswordHasherInterface $passwordHash): JsonResponse
     {
         parse_str($request->getContent(), $data);
         //vérification attribut nécessaire
@@ -100,6 +101,9 @@ class UserController extends AbstractController
         $user->setName($data['name']);
         $user->setEmail($data['email']);
         $user->setEncrypte($data['encrypte']);
+
+        $hash = $passwordHash->hashPassword($user, $password);
+        $user->setPassword($hash);
         if (isset($data['tel'])) {
             if (preg_match('/^0[1-9]([-. ]?[0-9]{2}){4}$/', $data['tel'])) {
                 $user->setTel($data['tel']);
