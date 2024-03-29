@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\HttpFoundation\Response; 
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 
 class AlbumController extends AbstractController
@@ -16,7 +16,8 @@ class AlbumController extends AbstractController
     private $repository;
     private $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager){
+    public function __construct(EntityManagerInterface $entityManager)
+    {
         $this->entityManager = $entityManager;
         $this->repository = $entityManager->getRepository(Album::class);
     }
@@ -25,7 +26,7 @@ class AlbumController extends AbstractController
     #[Route('/album/{id}', name: 'app_album_delete', methods: ['DELETE'])]
     public function delete_album_by_id(int $id): JsonResponse
     {
-        
+
         $album = $this->repository->find($id);
 
         if (!$album) {
@@ -39,25 +40,26 @@ class AlbumController extends AbstractController
         $this->entityManager->flush();
 
         return $this->json(['message' => 'Album deleted successfully']);
-
-        
     }
 
     #[Route('/album', name: 'post_album', methods: 'POST')]
     public function post_album(Request $request): JsonResponse
     {
         parse_str($request->getContent(), $data);
-        
+
         if (!isset($data['nom']) || !isset($data['categ']) || !isset($data['cover']) || !isset($data['year']) || !isset($data['idalbum'])) {
             return new JsonResponse(['error' => 'Missing data'], JsonResponse::HTTP_BAD_REQUEST);
         }
 
+        $date = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
         $album = new Album();
         $album->setNom($data['nom']);
         $album->setCateg($data['categ']);
         $album->setCover($data['cover']);
         $album->setYear($data['year']);
         $album->setIdAlbum($data['idalbum']);
+        $album->setCreateAt($date);
+        $album->setUpdateAt($date);
 
         $this->entityManager->persist($album);
         $this->entityManager->flush();
@@ -65,7 +67,7 @@ class AlbumController extends AbstractController
         return new JsonResponse([
             'validate' => 'Album added successfully',
             'id' => $album->getId()
-        
+
         ]);
     }
 
@@ -78,13 +80,13 @@ class AlbumController extends AbstractController
             return new JsonResponse([
                 'error' => 'Album not found',
                 'id' => $id
-        ]);
+            ]);
         }
 
-        
+
         parse_str($request->getContent(), $data);
 
-       
+
         if (isset($data['nom'])) {
             $album->setNom($data['nom']);
         }
@@ -101,18 +103,18 @@ class AlbumController extends AbstractController
             $album->setIdAlbum($data['idalbum']);
         }
 
-        
+
         $this->entityManager->persist($album);
         $this->entityManager->flush();
 
-    
+
         return new JsonResponse(['message' => 'Album updated successfully']);
     }
 
     #[Route('/album/{id}', name: 'app_album', methods: ['GET'])]
     public function get_album_by_id(int $id): JsonResponse
     {
-        
+
         $album = $this->repository->find($id);
 
         if (!$album) {
@@ -122,7 +124,7 @@ class AlbumController extends AbstractController
             ]);
         }
 
-        
+
 
         return $this->json([
             'nom' => $album->getNom(),
@@ -131,13 +133,11 @@ class AlbumController extends AbstractController
             'year' => $album->getYear(),
             'idalbum' => $album->getIdAlbum(),
         ]);
-
-        
     }
     #[Route('/album', name: 'app_albums_get', methods: ['GET'])]
     public function get_all_albums(): JsonResponse
     {
-        
+
         $albums = $this->repository->findAll();
 
         if (!$albums) {
@@ -158,7 +158,5 @@ class AlbumController extends AbstractController
         }
 
         return new JsonResponse($serializedAlbums);
-
-        
     }
 }

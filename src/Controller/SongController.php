@@ -86,7 +86,7 @@ class SongController extends AbstractController
     {
         parse_str($request->getContent(), $data);
 
-        if (!isset($data['title']) || !isset($data['url']) || !isset($data['cover']) || !isset($data['visibility']) || !isset($data['album_id']) || !isset($data['create_at'])) {
+        if (!isset($data['title']) || !isset($data['url']) || !isset($data['cover']) || !isset($data['visibility']) || !isset($data['album_id']) || !isset($data['create_at']) || !isset($data['song'])) {
             return new JsonResponse([
                 'error' => 'Missing data',
                 'data' => $data
@@ -105,6 +105,7 @@ class SongController extends AbstractController
         $song->setUrl($data['url']);
         $song->setCover($data['cover']);
         $song->setIdSong($data['id_song']);
+        $song->setIdSong($data['song']);
         $song->setVisibility($data['visibility']);
         $song->setCreateAt($date);
 

@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 class UserController extends AbstractController
@@ -35,7 +36,8 @@ class UserController extends AbstractController
         foreach ($users as $user) {
             $serializedUsers[] = [
                 'id' => $user->getId(),
-                'name' => $user->getName(),
+                'name' => $user->getFirstname(),
+                'encrypt' => $user->getPassword(),
                 'mail' => $user->getEmail(),
                 'tel' => $user->getTel()
             ];
@@ -58,18 +60,19 @@ class UserController extends AbstractController
 
         return $this->json([
             'id' => $user->getId(),
-            'name' => $user->getName(),
+            'name' => $user->getFirstname(),
+            'encrypt' => $user->getPassword(),
             'mail' => $user->getEmail(),
             'tel' => $user->getTel()
         ]);
     }
 
     #[Route('/user', name: 'app_user_post', methods: 'POST')]
-    public function postUser(Request $request): JsonResponse
+    public function postUser(Request $request, UserPasswordHasherInterface $passwordHash): JsonResponse
     {
         parse_str($request->getContent(), $data);
         //vérification attribut nécessaire
-        if (!isset($data['name']) || !isset($data['email']) || !isset($data['encrypte'])) {
+        if (!isset($data['firstname']) || !isset($data['email']) || !isset($data['encrypte']) || !isset($data['sexe']) || !isset($data['birthday'])) {
             return new JsonResponse([
                 'error' => 'Missing data',
                 'data' => $data
@@ -97,9 +100,17 @@ class UserController extends AbstractController
         $date = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
         $user = new User();
         $user->setIdUser($data['id_user']);
-        $user->setName($data['name']);
+        $user->setFirstname($data['firstname']);
+        $user->setLastname($data['lastname']);
+        $dateOfBirth = \DateTimeImmutable::createFromFormat('Y-m-d', $data['birthday']);
+        $user->setDateBirth($dateOfBirth);
+        $user->setSexe($data['sexe']);
         $user->setEmail($data['email']);
-        $user->setEncrypte($data['encrypte']);
+
+
+        $hash = $passwordHash->hashPassword($user, $data['encrypte']);
+
+        $user->setPassword($hash);
         if (isset($data['tel'])) {
             if (preg_match('/^0[1-9]([-. ]?[0-9]{2}){4}$/', $data['tel'])) {
                 $user->setTel($data['tel']);
