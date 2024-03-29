@@ -54,15 +54,16 @@ class PlaylistController extends AbstractController
                 'data' => $data
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
-
+        $date = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
 
 
         $playlist = new Playlist();
         $playlist->setTitle($data['title']);
         $playlist->setIdPlaylist($data['idplaylist']);
         $playlist->setpublic($data['public']);
-        $playlist->setCreateAt(new \DateTimeImmutable());
-        $playlist->setUpdateAt(new \DateTimeImmutable());
+        $playlist->setCreateAt($date);
+
+        $playlist->setUpdateAt($date);
 
         $this->entityManager->persist($playlist);
         $this->entityManager->flush();
@@ -96,7 +97,8 @@ class PlaylistController extends AbstractController
         if (isset($data['public'])) {
             $playlist->setPublic($data['public']);
         }
-        $playlist->setUpdateAt(new \DateTimeImmutable());
+        $date = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
+        $playlist->setUpdateAt($date);
 
 
 

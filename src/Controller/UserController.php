@@ -68,7 +68,7 @@ class UserController extends AbstractController
     public function postUser(Request $request): JsonResponse
     {
         parse_str($request->getContent(), $data);
-
+        //vérification attribut nécessaire
         if (!isset($data['name']) || !isset($data['email']) || !isset($data['encrypte'])) {
             return new JsonResponse([
                 'error' => 'Missing data',
@@ -76,6 +76,15 @@ class UserController extends AbstractController
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
 
+
+
+        $email = $data['email'];
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return new JsonResponse([
+                'error' => 'Invalid email address',
+                'email' => $email
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
         $existingUser = $this->repository->findOneByEmail($data['email']);
         if ($existingUser !== null) {
             return new JsonResponse([
@@ -85,17 +94,25 @@ class UserController extends AbstractController
         }
 
 
-
+        $date = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
         $user = new User();
         $user->setIdUser($data['id_user']);
         $user->setName($data['name']);
         $user->setEmail($data['email']);
         $user->setEncrypte($data['encrypte']);
         if (isset($data['tel'])) {
-            $user->setTel($data['tel']);
+            if (preg_match('/^0[1-9]([-. ]?[0-9]{2}){4}$/', $data['tel'])) {
+                $user->setTel($data['tel']);
+            } else {
+                return new JsonResponse([
+                    'error' => 'Invalid phone number',
+                    'phone' => $data['tel']
+                ], JsonResponse::HTTP_BAD_REQUEST);
+            }
         }
-        $user->setCreateAt(new \DateTimeImmutable());
-        $user->setUpdateAt(new \DateTimeImmutable());
+
+        $user->setCreateAt($date);
+        $user->setUpdateAt($date);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
@@ -119,6 +136,21 @@ class UserController extends AbstractController
         }
         parse_str($request->getContent(), $data);
 
+        $email = $data['email'];
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return new JsonResponse([
+                'error' => 'Invalid email address',
+                'email' => $email
+            ], JsonResponse::HTTP_BAD_REQUEST);
+        }
+        $existingUser = $this->repository->findOneByEmail($data['email']);
+        if ($existingUser !== null) {
+            return new JsonResponse([
+                'error' => 'Email already exists',
+                'email' => $data['email']
+            ], JsonResponse::HTTP_CONFLICT);
+        }
+
         if (isset($data['name'])) {
             $user->setName($data['name']);
         }
@@ -131,7 +163,8 @@ class UserController extends AbstractController
         if (isset($data['encrypte'])) {
             $user->setEncrypte($data['encrypte']);
         }
-        $user->setUpdateAt(new \DateTimeImmutable());
+        $date = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
+        $user->setUpdateAt($date);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
