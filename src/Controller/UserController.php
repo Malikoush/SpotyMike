@@ -39,7 +39,8 @@ class UserController extends AbstractController
                 'name' => $user->getFirstname(),
                 'encrypt' => $user->getPassword(),
                 'mail' => $user->getEmail(),
-                'tel' => $user->getTel()
+                'tel' => $user->getTel(),
+                'birthday' => $user->getDateBirth()
             ];
         }
 
@@ -58,13 +59,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        return $this->json([
-            'id' => $user->getId(),
-            'name' => $user->getFirstname(),
-            'encrypt' => $user->getPassword(),
-            'mail' => $user->getEmail(),
-            'tel' => $user->getTel()
-        ]);
+        return $this->json($user->serializer());
     }
 
     #[Route('/user', name: 'app_user_post', methods: 'POST')]

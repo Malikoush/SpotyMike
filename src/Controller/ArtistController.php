@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\HttpFoundation\Response;
+use App\Entity\Album;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\User;
 
@@ -46,39 +46,86 @@ class ArtistController extends AbstractController
     #[Route('/artist', name: 'post_artist', methods: 'POST')]
     public function post_artist(Request $request): JsonResponse
     {
-        parse_str($request->getContent(), $data);
+        try {
+            parse_str($request->getContent(), $data);
 
-        if (!isset($data['fullname']) || !isset($data['label']) || !isset($data['user_id_user_id'])) {
+            //Donné manquante
+            if (!isset($data['fullname']) || !isset($data['label']) || !isset($data['user_id_user_id'])) {
+                return new JsonResponse([
+                    'error' => true,
+                    'message' => 'Une ou plusieurs données obligatoires sont manquantes'
+                ], 400);
+            }
+
+            //Vérification token
+            if (False) {
+                return new JsonResponse([
+                    'error' => true,
+                    'message' => "Votre token n'est pas correct "
+                ], 401);
+            }
+
+            // Vérification du type des données
+            if (!is_string($data['fullname']) || !is_string($data['label']) || !is_numeric($data['user_id_user_id'])) {
+                return new JsonResponse([
+                    'error' => true,
+                    'message' => 'Une ou plusieurs données sont erronées',
+                    'data' => $data
+                ], 409);
+            }
+            // Recherche d'un artiste avec le même nom dans la base de données
+            $existingArtist = $this->entityManager->getRepository(Artist::class)->findOneBy(['fullname' => $data['fullname']]);
+            if ($existingArtist) {
+                return new JsonResponse([
+                    'error' => true,
+                    'message' => "Un compte utilisant ce nom d'artiste déja enregistrer"
+                ], 409);
+            }
+
+            //Recherche si le user est deja un artiste
+            $user = $this->entityManager->getRepository(User::class)->find($data['user_id_user_id']);
+
+            if (!$user) {
+                return new JsonResponse(['error' => 'User introuvable'], JsonResponse::HTTP_BAD_REQUEST);
+            }
+            $artist = new Artist();
+            $date = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
+            $birthday = $user->getDateBirth();
+            $age = $birthday->diff($date)->y;
+            //Vérification Age
+            if ($age < 16) {
+                return new JsonResponse([
+                    'error' => true,
+                    'message' => "Age minimum requis (16 ans)",
+                ], 401);
+            }
+
+
+
+            $artist->setFullname($data['fullname']);
+            $artist->setLabel($data['label']);
+            $artist->setUserIdUser($user);
+            if (isset($data['description'])) {
+                $artist->setdescription($data['description']);
+            }
+            $artist->setCreateAt($date);
+            $artist->setUpdateAt($date);
+
+            $this->entityManager->persist($artist);
+            $this->entityManager->flush();
+
             return new JsonResponse([
-                'error' => 'Missing data',
-                'data' => $data
-            ], JsonResponse::HTTP_BAD_REQUEST);
+                'validate' => 'Artist added successfully',
+                'id' => $artist->getId()
+
+            ]);
+        } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
+            // Renvoyer un message d'erreur indiquant que la donnée est déjà présente
+            return new JsonResponse([
+                'error' => true,
+                'message' => 'La donnée que vous essayez d\'insérer existe déjà dans la base de données.'
+            ], 409);
         }
-
-        $user = $this->entityManager->getRepository(User::class)->find($data['user_id_user_id']);
-        if (!$user) {
-            return new JsonResponse(['error' => 'User not found'], JsonResponse::HTTP_BAD_REQUEST);
-        }
-
-        $date = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
-        $artist = new Artist();
-        $artist->setFullname($data['fullname']);
-        $artist->setLabel($data['label']);
-        $artist->setUserIdUser($user);
-        if (isset($data['description'])) {
-            $artist->setdescription($data['description']);
-        }
-        $artist->setCreateAt($date);
-        $artist->setUpdateAt($date);
-
-        $this->entityManager->persist($artist);
-        $this->entityManager->flush();
-
-        return new JsonResponse([
-            'validate' => 'Artist added successfully',
-            'id' => $artist->getId()
-
-        ]);
     }
 
     #[Route('/artist/{id}', name: 'app_artist_put', methods: ['PUT'])]
@@ -116,64 +163,48 @@ class ArtistController extends AbstractController
         return new JsonResponse(['message' => 'Artist updated successfully']);
     }
 
-    #[Route('/artist/{id}', name: 'app_artist', methods: ['GET'])]
-    public function get_artist_by_id(int $id): JsonResponse
+    #[Route('/artist/', name: 'empty_artist', methods: ['GET'])]
+    public function emptyArtist(): JsonResponse
     {
-
-        $artist = $this->repository->find($id);
-
-        if (!$artist) {
-            return $this->json([
-                'error' => 'Artist not found',
-                'artistid' => $id,
-            ]);
-        }
-
-
         return $this->json([
-            'id' => $artist->getId(),
-            'user' => [
-                'id' => $artist->getUserIdUser()->getId(),
-                'name' => $artist->getUserIdUser()->getName(),
-                'mail' => $artist->getUserIdUser()->getEmail(),
-                'tel' => $artist->getUserIdUser()->getTel(),
-
-            ],
-            'fullname' => $artist->getFullname(),
-            'label' => $artist->getLabel(),
-            'description' => $artist->getDescription(),
-
-        ]);
+            "error" => true,
+            "message" => "Nom de l'artiste manquants",
+        ], 400);
     }
-    #[Route('/artist', name: 'app_artists_get', methods: ['GET'])]
+    #[Route('/artist/all', name: 'app_artists_get', methods: ['GET'])]
     public function get_all_artists(): JsonResponse
     {
 
         $artists = $this->repository->findAll();
+        $artist_serialized = [];
+        foreach ($artists as $artist) {
 
+            array_push($artist_serialized, $artist->serializer());
+        }
         if (!$artists) {
             return $this->json([
-                'message' => 'No artists found',
+                'message' => 'Aucun utilisateur trouver',
             ], JsonResponse::HTTP_NOT_FOUND);
         }
 
-        $serializedArtists = [];
-        foreach ($artists as $artist) {
-            $serializedArtists[] = [
-                'id' => $artist->getId(),
-                'user' => [
-                    'id' => $artist->getUserIdUser()->getId(),
-                    'name' => $artist->getUserIdUser()->getName(),
-                    'mail' => $artist->getUserIdUser()->getEmail(),
-                    'tel' => $artist->getUserIdUser()->getTel(),
+        return new JsonResponse($artist_serialized);
+    }
+    #[Route('/artist/{fullname}', name: 'app_artist', methods: ['GET'])]
+    public function get_artist_by_id(string $fullname): JsonResponse
+    {
 
-                ],
-                'fullname' => $artist->getFullname(),
-                'label' => $artist->getLabel(),
-                'description' => $artist->getDescription(),
-            ];
+        $artist = $this->repository->findOneBy(['fullname' => $fullname]);
+
+        if (!$artist) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Une ou plusieurs données sont erronées'
+
+            ], 409);
         }
 
-        return new JsonResponse($serializedArtists);
+        return $this->json([
+            $artist->serializer()
+        ]);
     }
 }
