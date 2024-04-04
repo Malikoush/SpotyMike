@@ -203,6 +203,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return "";
     }
 
+    public function serializer()
+    {
+        return [
+            "id" => $this->getId(),
+            "idUser" => $this->getIdUser(),
+            "firstname" => $this->getFirstname(),
+            "lastname" => $this->getLastname(),
+            "sexe" => $this->getSexe(),
+            "email" => $this->getEmail(),
+            "tel" => $this->getTel(),
+            "birthday" => $this->getDateBirth()->format('Y-m-d H:i:s'),
+            "createAt" => $this->getCreateAt()->format('Y-m-d H:i:s'),
+            "updateAt" => $this->getUpdateAt()->format('Y-m-d H:i:s'),
+            "artist" => $this->getArtist() ?  $this->getArtist()->serializer() : [],
+        ];
+    }
+
     public function getDateBirth(): ?\DateTimeInterface
     {
         return $this->dateBirth;

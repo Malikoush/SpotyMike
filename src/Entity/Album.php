@@ -178,4 +178,30 @@ class Album
 
         return $this;
     }
+
+    public function serializer($children = false)
+    {
+        $songsData = [];
+        $songs = $this->getSongIdSong();
+        $artist = $this->getArtistUserIdUser()->getId();
+        $client = 1; // ajouter id du client depuis le token
+        foreach ($songs as $song) {
+            if ($client == $artist || $song->isVisibility() == true) {
+                $songsData[] = $song->serializer();
+            }
+        }
+
+        return [
+            "error" => false,
+            "id" => $this->getId(),
+            "nom" => $this->getNom(),
+            "categ" => $this->getCateg(),
+            "cover" => $this->getCover(),
+            "year" => $this->getYear(),
+            "createdAt" => $this->getCreateAt()->format('Y-m-d H:i:s'),
+            "songs" =>   $songsData,
+
+
+        ];
+    }
 }

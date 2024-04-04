@@ -199,4 +199,13 @@ class Song
 
         return $this;
     }
+
+    public function serializer()
+    {
+        return [
+            "id" => $this->getId(),
+            "title" => $this->getTitle(),
+            // Ajoutez d'autres attributs de l'album si nécessaire
+        ];
+    }
 }
