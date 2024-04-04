@@ -6,9 +6,7 @@ use App\Repository\ArtistRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: ArtistRepository::class)]
 class Artist
