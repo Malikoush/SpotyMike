@@ -7,7 +7,11 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
+
+use App\Entity\Artist;
+
 use Symfony\Component\HttpFoundation\Response;
+
 use Symfony\Component\HttpFoundation\Request;
 
 class AlbumController extends AbstractController
@@ -53,6 +57,8 @@ class AlbumController extends AbstractController
 
         $date = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
         $album = new Album();
+        $artist = $this->entityManager->getRepository(Artist::class)->find(1);
+        $album->setArtistUserIdUser($artist);
         $album->setNom($data['nom']);
         $album->setCateg($data['categ']);
         $album->setCover($data['cover']);
@@ -127,11 +133,14 @@ class AlbumController extends AbstractController
 
 
         return $this->json([
+            /*
             'nom' => $album->getNom(),
             'categ' => $album->getCateg(),
             'cover' => $album->getCover(),
             'year' => $album->getYear(),
             'idalbum' => $album->getIdAlbum(),
+            */
+            $album->serializer()
         ]);
     }
     #[Route('/album', name: 'app_albums_get', methods: ['GET'])]

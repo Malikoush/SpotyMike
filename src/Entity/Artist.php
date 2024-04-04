@@ -4,7 +4,9 @@ namespace App\Entity;
 
 use App\Repository\ArtistRepository;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: ArtistRepository::class)]
 class Artist
@@ -32,6 +34,15 @@ class Artist
     #[ORM\OneToOne(inversedBy: 'artist', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $User_idUser = null;
+
+    #[ORM\OneToMany(targetEntity: Album::class, mappedBy: 'artist_User_idUser')]
+    private Collection $album_idAlbum;
+
+
+    public function __construct()
+    {
+        $this->album_idAlbum = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -107,5 +118,54 @@ class Artist
         $this->updateAt = $updateAt;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Album>
+     */
+    public function getAlbumIdAlbum(): Collection
+    {
+        return $this->album_idAlbum;
+    }
+
+    public function addAlbumIdAlbum(Album $albumIdAlbum): static
+    {
+        if (!$this->album_idAlbum->contains($albumIdAlbum)) {
+            $this->album_idAlbum->add($albumIdAlbum);
+            $albumIdAlbum->setArtistUserIdUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAlbumIdAlbum(Album $albumIdAlbum): static
+    {
+        if ($this->album_idAlbum->removeElement($albumIdAlbum)) {
+            // set the owning side to null (unless already changed)
+            if ($albumIdAlbum->getArtistUserIdUser() === $this) {
+                $albumIdAlbum->setArtistUserIdUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function serializer($children = false)
+    {
+        $albumsData = [];
+        $albums = $this->getAlbumIdAlbum();
+        foreach ($albums as $album) {
+            $albumsData[] = $album->serializer();
+        }
+
+        return [
+            "error" => false,
+            "firstname" => $this->getUserIdUser()->getFirstname(),
+            "lastname" => $this->getUserIdUser()->getLastname(),
+            "sexe" => $this->getUserIdUser()->getSexe(),
+            "dateBirth" => $this->getUserIdUser()->getDateBirth()->format('Y-m-d H:i:s'),
+            "Artist.createdAt" => $this->getCreateAt()->format('Y-m-d H:i:s'),
+            "album" => $albumsData,
+        ];
     }
 }
