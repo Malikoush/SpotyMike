@@ -115,8 +115,9 @@ class ArtistController extends AbstractController
             $this->entityManager->flush();
 
             return new JsonResponse([
-                'validate' => 'Artist added successfully',
-                'id' => $artist->getId()
+                'sucess' => true,
+                'message' => "Votre compte d'artiste a été créé avec succès.Bienvuenue dans notre communauté d'artistes !",
+                'artist_id' => $artist->getId()
 
             ]);
         } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
