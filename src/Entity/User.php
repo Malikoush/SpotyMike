@@ -231,7 +231,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             "sexe" => $this->getSexe(),
             "email" => $this->getEmail(),
             "tel" => $this->getTel(),
-            "birthday" => $this->getDateBirth()->format('Y-m-d H:i:s'),
+            "birthday" => $this->getDateBirth()->format('d-m-Y'),
             "createAt" => $this->getCreateAt()->format('Y-m-d H:i:s'),
             "updateAt" => $this->getUpdateAt()->format('Y-m-d H:i:s'),
             "artist" => $this->getArtist() ?  $this->getArtist()->serializer() : [],
