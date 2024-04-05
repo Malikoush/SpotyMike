@@ -9,11 +9,20 @@ use App\Entity\Song;
 use App\Entity\Playlist;
 use App\Entity\Label;
 use DateTimeImmutable;
-use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Doctrine\Bundle\FixturesBundle\Fixture;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
+    
+    private UserPasswordHasherInterface $hasher;
+
+    public function __construct(UserPasswordHasherInterface $hasher)
+    {
+        $this->hasher = $hasher;
+    }
+    
     public function load(ObjectManager $manager): void
     {
         for ($i = 1; $i < 8; $i++) {
@@ -26,27 +35,31 @@ class AppFixtures extends Fixture
             $user->setFirstname("User_" . $i);
             $user->setLastname("User_" . $i);
             $user->setEmail("user_" . $i . "@gmail.com");
-            $user->setPassword("User_" . $i);
             $user->setDateBirth(new DateTimeImmutable());
             $user->setCreateAt(new DateTimeImmutable());
             $user->setUpdateAt(new DateTimeImmutable());
+            $hash = $this->hasher->hashPassword($user, "User_" . $i);
+            $user->setPassword($hash);
             $manager->persist($user);
+            $manager->flush();
                 
             // Add New Artist
             $artist = new Artist;
-            $manager->persist($artist);
             $artist->setFullname("Artist_" . $i);
             $artist->setUserIdUser($user);
             $artist->setDescription("Artist_" . $i);
             $artist->setCreateAt(new DateTimeImmutable());
             $artist->setUpdateAt(new DateTimeImmutable());
+            $manager->persist($artist);
+            $manager->flush();
 
             // Add New Label
             $label = new Label;
-            $manager->persist($label);
             $label->setNom("Label_" . $i);
             $label->setCreateAt(new DateTimeImmutable());
             $label->setUpdateAt(new DateTimeImmutable());  
+            $manager->persist($label);
+            $manager->flush();
 
             // Add New Album
             $album = new Album;
@@ -59,6 +72,7 @@ class AppFixtures extends Fixture
             $album->setCreateAt(new DateTimeImmutable());
             $album->setUpdateAt(new DateTimeImmutable());
             $manager->persist($album);
+            $manager->flush();
 
             // Add New Song
             $song = new Song;
@@ -70,19 +84,19 @@ class AppFixtures extends Fixture
             $song->setCreateAt(new DateTimeImmutable());
             $song->setAlbum($album);
             $manager->persist($song);
+            $manager->flush();
 
             // Add New Playlist
             $playlist = new Playlist;
-            $manager->persist($playlist);
             $playlist->setIdPlaylist($i);
             $playlist->setUser($user);
             $playlist->setTitle("Playlist_" . $i);
             $playlist->setPublic(rand(0, 1));
             $playlist->setCreateAt(new DateTimeImmutable());
             $playlist->setUpdateAt(new DateTimeImmutable()); 
+            $manager->persist($playlist);
+            $manager->flush();
 
         }
-        
-        $manager->flush();
     }
 }
