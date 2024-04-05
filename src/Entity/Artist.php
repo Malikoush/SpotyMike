@@ -19,9 +19,6 @@ class Artist
     #[ORM\Column(length: 90)]
     private ?string $fullname = null;
 
-    #[ORM\Column(length: 90)]
-    private ?string $label = null;
-
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
@@ -64,18 +61,6 @@ class Artist
     public function setFullname(string $fullname): static
     {
         $this->fullname = $fullname;
-
-        return $this;
-    }
-
-    public function getLabel(): ?string
-    {
-        return $this->label;
-    }
-
-    public function setLabel(string $label): static
-    {
-        $this->label = $label;
 
         return $this;
     }

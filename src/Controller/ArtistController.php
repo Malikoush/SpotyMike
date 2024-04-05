@@ -50,7 +50,7 @@ class ArtistController extends AbstractController
             parse_str($request->getContent(), $data);
 
             //Donné manquante
-            if (!isset($data['fullname']) || !isset($data['label']) || !isset($data['user_id_user_id'])) {
+            if (!isset($data['fullname']) || !isset($data['user_id_user_id'])) {
                 return new JsonResponse([
                     'error' => true,
                     'message' => 'Une ou plusieurs données obligatoires sont manquantes'
@@ -66,7 +66,7 @@ class ArtistController extends AbstractController
             }
 
             // Vérification du type des données
-            if (!is_string($data['fullname']) || !is_string($data['label']) || !is_numeric($data['user_id_user_id'])) {
+            if (!is_string($data['fullname']) || !is_numeric($data['user_id_user_id'])) {
                 return new JsonResponse([
                     'error' => true,
                     'message' => 'Une ou plusieurs données sont erronées',
@@ -103,7 +103,6 @@ class ArtistController extends AbstractController
 
 
             $artist->setFullname($data['fullname']);
-            $artist->setLabel($data['label']);
             $artist->setUserIdUser($user);
             if (isset($data['description'])) {
                 $artist->setdescription($data['description']);
@@ -148,18 +147,12 @@ class ArtistController extends AbstractController
         if (isset($data['fullname'])) {
             $artist->setFullname($data['fullname']);
         }
-        if (isset($data['label'])) {
-            $artist->setLabel($data['label']);
-        }
         if (isset($data['description'])) {
             $artist->setDescription($data['description']);
         }
 
-
-
         $this->entityManager->persist($artist);
         $this->entityManager->flush();
-
 
         return new JsonResponse(['message' => 'Artist updated successfully']);
     }

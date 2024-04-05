@@ -104,9 +104,7 @@ class SongController extends AbstractController
         $song->setTitle($data['title']);
         $song->setUrl($data['url']);
         $song->setCover($data['cover']);
-        $song->setStream($data['stream']);
         $song->setIdSong($data['id_song']);
-        $song->setIdSong($data['song']);
         $song->setVisibility($data['visibility']);
         $song->setCreateAt($date);
 

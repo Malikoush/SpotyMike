@@ -38,7 +38,7 @@ class Playlist
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'playlist_idPlaylist')]
     private Collection $users;
 
-    #[ORM\ManyToOne(inversedBy: 'playlists')]
+    #[ORM\ManyToOne(inversedBy: 'playlists', cascade: ['persist', 'remove'])]
     private ?User $user = null;
 
     public function __construct()

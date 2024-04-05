@@ -25,9 +25,6 @@ class Song
     private ?string $url = null;
 
     #[ORM\Column(length: 125)]
-    private ?string $stream = null;
-
-    #[ORM\Column(length: 125)]
     private ?string $cover = null;
 
     #[ORM\Column]
@@ -42,7 +39,7 @@ class Song
     #[ORM\ManyToMany(targetEntity: Playlist::class, inversedBy: 'songs')]
     private Collection $playlist_idPlaylist;
 
-    #[ORM\ManyToOne(inversedBy: 'song_idSong')]
+    #[ORM\ManyToOne(inversedBy: 'song_idSong', cascade: ['persist', 'remove'])]
     private ?Album $album = null;
 
     public function __construct()
@@ -88,18 +85,6 @@ class Song
     public function setUrl(string $url): static
     {
         $this->url = $url;
-
-        return $this;
-    }
-
-    public function getStream(): ?string
-    {
-        return $this->stream;
-    }
-
-    public function setStream(string $stream): static
-    {
-        $this->stream = $stream;
 
         return $this;
     }

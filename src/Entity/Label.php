@@ -19,10 +19,10 @@ class Label
     private ?string $nom = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    private ?\DateTimeImmutable $createAt = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $updatedAt = null;
+    private ?\DateTimeImmutable $updateAt = null;
 
     #[ORM\ManyToMany(targetEntity: Artist::class, inversedBy: 'labels')]
     private Collection $artist_idArtist;
@@ -49,28 +49,38 @@ class Label
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreateAt(): ?\DateTimeImmutable
     {
-        return $this->createdAt;
+        return $this->createAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    public function setCreateAt(\DateTimeImmutable $createAt): static
     {
-        $this->createdAt = $createdAt;
+        $this->createAt = $createAt;
 
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTimeImmutable
+    public function getUpdateAt(): ?\DateTimeImmutable
     {
-        return $this->updatedAt;
+        return $this->updateAt;
     }
 
-    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+    public function setUpdateAt(\DateTimeImmutable $updateAt): static
     {
-        $this->updatedAt = $updatedAt;
+        $this->updateAt = $updateAt;
 
         return $this;
+    }
+
+    public function serializer()
+    {
+        return [
+            "id" => $this->getId(),
+            "nom" => $this->getNom(),
+            "createAt" => $this->getCreateAt()->format('Y-m-d H:i:s'),
+            "updateAt" => $this->getUpdateAt()->format('Y-m-d H:i:s')
+        ];
     }
 
     /**
