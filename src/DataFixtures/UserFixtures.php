@@ -13,8 +13,7 @@ class User extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        for ($i = 0; $i < 7; $i++) {
-            # code...
+        for ($i = 1; $i < 8; $i++) {
             $user = new EntityUser;
             $manager->persist($user);
             $user->setIdUser($i);
@@ -29,6 +28,12 @@ class User extends Fixture
             $user->setPassword("User_" . $i);
             if (rand(0, 1)) {
                 $artist = new Artist();
+                $manager->persist($artist);
+                $artist->setFullname("Artist_" . $i);
+                $artist->setUserIdUser($user);
+                $artist->setDescription("Artist_" . $i);
+                $artist->setCreateAt(new DateTimeImmutable());
+                $artist->setUpdateAt(new DateTimeImmutable()); 
             }
         }
         $manager->flush();
