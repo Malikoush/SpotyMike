@@ -167,7 +167,7 @@ class UserController extends AbstractController
             $user->setTel($data['tel']);
         }
         if (isset($data['encrypte'])) {
-            $user->setEncrypte($data['encrypte']);
+            $user->setPassword($data['encrypte']);
         }
         $date = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
         $user->setUpdateAt($date);
