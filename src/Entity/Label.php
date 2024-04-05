@@ -73,6 +73,16 @@ class Label
         return $this;
     }
 
+    public function serializer()
+    {
+        return [
+            "id" => $this->getId(),
+            "nom" => $this->getNom(),
+            "createAt" => $this->getCreateAt()->format('Y-m-d H:i:s'),
+            "updateAt" => $this->getUpdateAt()->format('Y-m-d H:i:s')
+        ];
+    }
+
     /**
      * @return Collection<int, Artist>
      */
