@@ -55,14 +55,16 @@ class PlaylistController extends AbstractController
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
         $date = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
-
+    
+        //Recherche si le user est deja un artiste
+        $user = $this->entityManager->getRepository(User::class)->find($data['user_id']);
 
         $playlist = new Playlist();
         $playlist->setTitle($data['title']);
         $playlist->setIdPlaylist($data['idplaylist']);
-        $playlist->setpublic($data['public']);
+        $playlist->setPublic($data['public']);
+        $playlist->setUser($user);
         $playlist->setCreateAt($date);
-
         $playlist->setUpdateAt($date);
 
         $this->entityManager->persist($playlist);
