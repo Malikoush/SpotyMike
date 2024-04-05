@@ -25,9 +25,6 @@ class Song
     private ?string $url = null;
 
     #[ORM\Column(length: 125)]
-    private ?string $stream = null;
-
-    #[ORM\Column(length: 125)]
     private ?string $cover = null;
 
     #[ORM\Column]
@@ -88,18 +85,6 @@ class Song
     public function setUrl(string $url): static
     {
         $this->url = $url;
-
-        return $this;
-    }
-
-    public function getStream(): ?string
-    {
-        return $this->stream;
-    }
-
-    public function setStream(string $stream): static
-    {
-        $this->stream = $stream;
 
         return $this;
     }
