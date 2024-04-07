@@ -35,9 +35,16 @@ class Playlist
     #[ORM\ManyToMany(targetEntity: Song::class, mappedBy: 'playlist_idPlaylist')]
     private Collection $songs;
 
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'playlist_idPlaylist')]
+    private Collection $users;
+
+    #[ORM\ManyToOne(inversedBy: 'playlists', cascade: ['persist', 'remove'])]
+    private ?User $user = null;
+
     public function __construct()
     {
         $this->songs = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -128,6 +135,45 @@ class Playlist
         if ($this->songs->removeElement($song)) {
             $song->removePlaylistIdPlaylist($this);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): static
+    {
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
+            $user->addPlaylistIdPlaylist($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): static
+    {
+        if ($this->users->removeElement($user)) {
+            $user->removePlaylistIdPlaylist($this);
+        }
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }

@@ -97,11 +97,10 @@ class UserController extends AbstractController
         $user->setIdUser($data['id_user']);
         $user->setFirstname($data['firstname']);
         $user->setLastname($data['lastname']);
-        $dateOfBirth = \DateTimeImmutable::createFromFormat('Y-m-d', $data['birthday']);
+        $dateOfBirth = \DateTimeImmutable::createFromFormat('d-m-Y', $data['birthday']);
         $user->setDateBirth($dateOfBirth);
         $user->setSexe($data['sexe']);
         $user->setEmail($data['email']);
-
 
         $hash = $passwordHash->hashPassword($user, $data['encrypte']);
 
@@ -167,7 +166,7 @@ class UserController extends AbstractController
             $user->setTel($data['tel']);
         }
         if (isset($data['encrypte'])) {
-            $user->setEncrypte($data['encrypte']);
+            $user->setPassword($data['encrypte']);
         }
         $date = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
         $user->setUpdateAt($date);

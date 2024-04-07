@@ -3,10 +3,10 @@
 namespace App\Entity;
 
 use App\Repository\ArtistRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ArtistRepository::class)]
 class Artist
@@ -18,9 +18,6 @@ class Artist
 
     #[ORM\Column(length: 90)]
     private ?string $fullname = null;
-
-    #[ORM\Column(length: 90)]
-    private ?string $label = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
@@ -39,9 +36,16 @@ class Artist
     private Collection $album_idAlbum;
 
 
+    #[ORM\ManyToMany(targetEntity: Label::class, mappedBy: 'artist_idArtist')]
+    private Collection $labels;
+
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'Follow')]
+    private Collection $Followers;
+
     public function __construct()
     {
-        $this->album_idAlbum = new ArrayCollection();
+        $this->labels = new ArrayCollection();
+        $this->Followers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -57,18 +61,6 @@ class Artist
     public function setFullname(string $fullname): static
     {
         $this->fullname = $fullname;
-
-        return $this;
-    }
-
-    public function getLabel(): ?string
-    {
-        return $this->label;
-    }
-
-    public function setLabel(string $label): static
-    {
-        $this->label = $label;
 
         return $this;
     }
@@ -167,5 +159,59 @@ class Artist
             "Artist.createdAt" => $this->getCreateAt()->format('Y-m-d H:i:s'),
             "album" => $albumsData,
         ];
+    }
+
+    /**
+     * @return Collection<int, Label>
+     */
+    public function getLabels(): Collection
+    {
+        return $this->labels;
+    }
+
+    public function addLabel(Label $label): static
+    {
+        if (!$this->labels->contains($label)) {
+            $this->labels->add($label);
+            $label->addArtistIdArtist($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLabel(Label $label): static
+    {
+        if ($this->labels->removeElement($label)) {
+            $label->removeArtistIdArtist($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getFollowers(): Collection
+    {
+        return $this->Followers;
+    }
+
+    public function addFollower(User $follower): static
+    {
+        if (!$this->Followers->contains($follower)) {
+            $this->Followers->add($follower);
+            $follower->addFollow($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFollower(User $follower): static
+    {
+        if ($this->Followers->removeElement($follower)) {
+            $follower->removeFollow($this);
+        }
+
+        return $this;
     }
 }
