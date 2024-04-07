@@ -138,6 +138,8 @@ class UserController extends AbstractController
                 'user' => $user->serializer(),
 
             ]);
+            // Gestion des erreurs inattendues
+            throw new Exception(ErrorTypes::UNEXPECTED_ERROR);
         } catch (Exception $exception) {
             return $errorManager->generateError($exception->getMessage(), $exception->getCode());
         }
