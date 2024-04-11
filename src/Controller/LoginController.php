@@ -31,7 +31,7 @@ class LoginController extends  AbstractController
         $this->cache = $cache;
         $this->repository = $entityManager->getRepository(User::class);
     }
-
+    //tes
     #[Route('/register', name: 'app_register', methods: 'POST')]
     public function register(ErrorManager $errorManager): JsonResponse
     {
